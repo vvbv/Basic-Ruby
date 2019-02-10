@@ -4,6 +4,7 @@ in
     in begin
         var xy = *y;
         var yy = *xy;
+        println( +(yy,xy) );
         var yy = x;
         println( +(yy,xy) );
     end
