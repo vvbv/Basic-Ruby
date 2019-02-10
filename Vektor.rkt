@@ -32,22 +32,23 @@
 ;Especificación Léxica
 
 (define scanner-spec-simple-interpreter
-'((white-sp
-   (whitespace) skip)
-  (comment
-   ("%" (arbno (not #\newline))) skip)
-  (identifier
-   (letter (arbno (or letter digit "?"))) symbol)
-  (number
-   (digit (arbno digit)) number)
-  (number
-   ("-" digit (arbno digit)) number)))
+'(
+    (white-sp (whitespace) skip)
+    (comment ("%" (arbno (not #\newline))) skip)
+    (identifier (letter (arbno (or letter digit "?"))) symbol)
+    (number (digit (arbno digit)) number)
+    (number ("-" digit (arbno digit)) number) 
+    (string ("'" (arbno (or letter digit whitespace)) "'") string)
+    (string ("\"" (arbno (or letter digit whitespace)) "\"") string)
+  )
+)
 
 ;Especificación Sintáctica (gramática)
 
 (define grammar-simple-interpreter
   '((program (expression) a-program)
     (expression (number) lit-exp)
+    (expression (string) string-lit-exp)
     (expression (identifier) var-exp)
     (expression
      (primitive "(" (separated-list expression ",")")")
@@ -114,6 +115,9 @@
   (lambda (exp env)
     (cases expression exp
       (lit-exp (datum) datum)
+      (string-lit-exp (datum) 
+        (substring datum 1 (- (string-length datum) 1))
+      )
       (var-exp (id) (apply-env env id))
       (primapp-exp (prim rands)
                    (let ((args (eval-rands rands env)))
@@ -140,7 +144,9 @@
 ; lista de operandos (expresiones)
 (define eval-rands
   (lambda (rands env)
-    (map (lambda (x) (eval-rand x env)) rands)))
+    (map (lambda (x) (eval-rand x env)) rands)
+  )
+)
 
 (define eval-rand
   (lambda (rand env)
@@ -150,16 +156,18 @@
 (define apply-primitive
   (lambda (prim args)
     (cases primitive prim
-      (add-prim () (+ (car args) (cadr args)))
+      (add-prim () 
+        (+ (car args) (cadr args))
+      )
       (substract-prim () (- (car args) (cadr args)))
       (mult-prim () (* (car args) (cadr args)))
       (incr-prim () (+ (car args) 1))
       (decr-prim () (- (car args) 1))
       (print-prim () 
-        (extra:display args)
+        (extra:display-list args)
       )
       (println-prim () 
-        (extra:displayln args)
+        (extra:displayln-list args)
       )
     )
   )

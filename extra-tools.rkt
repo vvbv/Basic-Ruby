@@ -6,7 +6,9 @@
     extra:put-elements-in-list
     extra:remove
     extra:display
+    extra:display-list
     extra:displayln
+    extra:displayln-list
     extra:exist-in?
     extra:binary-tree-to-list
     extra:insert-in-list
@@ -190,6 +192,42 @@
 
 (define extra:displayln
     (lambda input
+        (cond
+            [(list? input)
+                (for-each
+                    (lambda (arg)
+                        (display arg)
+                    )
+                    input
+                )
+            ]
+            [else
+                (display input)
+            ]
+        )
+        (newline)
+    )
+)
+
+(define extra:display-list
+    (lambda (input)
+        (cond
+            [(list? input)
+                (for-each
+                    (lambda (arg)
+                        (display arg)
+                    )
+                    input
+                )
+            ]
+            [else
+                (display input)
+            ]
+        )
+    )
+)
+(define extra:displayln-list
+    (lambda (input)
         (cond
             [(list? input)
                 (for-each
