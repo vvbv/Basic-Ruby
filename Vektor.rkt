@@ -36,6 +36,7 @@
     (white-sp (whitespace) skip)
     (comment ("%" (arbno (not #\newline))) skip)
     (identifier (letter (arbno (or letter digit "?"))) symbol)
+    (pointer ("*" letter (arbno (or letter digit "?"))) string)
     (number (digit (arbno digit)) number)
     (number ("-" digit (arbno digit)) number) 
     (string ("'" (arbno (or letter digit whitespace)) "'") string)
@@ -50,18 +51,31 @@
     (expression (number) lit-exp)
     (expression (string) string-lit-exp)
     (expression (identifier) var-exp)
+    (expression (pointer) var-pointer-exp)
     (expression
      (primitive "(" (separated-list expression ",")")")
-     primapp-exp)
-    (expression ("if" expression "then" expression "else" expression)
-                if-exp)
-    (expression ("let" (arbno identifier "=" expression) "in" expression)
-                let-exp)
-    
+     primapp-exp
+    )
+    (expression 
+      ("if" expression "then" expression "else" expression)
+      if-exp
+    )
+    (expression 
+      ("let" (arbno identifier "=" expression) "in" expression)
+      let-exp
+    )
+    (expression 
+      ("begin" expression ";" (arbno expression ";" ) "end" )
+      begin-exp
+    )
+    (expression
+      ("var" identifier "=" expression )
+      val-defn
+    )
     ; características adicionales
     (expression ("proc" "(" (separated-list identifier ",") ")" expression)
                 proc-exp)
-    (expression ( "(" expression (arbno expression) ")")
+    (expression ( "{" expression (arbno expression) "}")
                 app-exp)
     ;;;;;;
 
@@ -114,11 +128,19 @@
 (define eval-expression
   (lambda (exp env)
     (cases expression exp
-      (lit-exp (datum) datum)
+      (lit-exp (datum) 
+        datum
+      )
       (string-lit-exp (datum) 
         (substring datum 1 (- (string-length datum) 1))
       )
+      (val-defn (id assignment) 
+       (extend-env (list id) (list (eval-expression assignment env )) env)
+      )
       (var-exp (id) (apply-env env id))
+      (var-pointer-exp (id) 
+        (apply-env env (string->symbol (substring id 1 (string-length id))))
+      )
       (primapp-exp (prim rands)
                    (let ((args (eval-rands rands env)))
                      (apply-primitive prim args)))
@@ -127,18 +149,42 @@
                   (eval-expression true-exp env)
                   (eval-expression false-exp env)))
       (let-exp (ids rands body)
-               (let ((args (eval-rands rands env)))
-                 (eval-expression body
-                                  (extend-env ids args env))))
+        (let ((args (eval-rands rands env)))
+          (eval-expression body
+            (extend-env ids args env)
+          )
+        )
+      )
+      (begin-exp (first-exp exps)
+        ;loop is the proc-identifier
+        (let loop (
+            (acc (eval-expression first-exp env)) ;Default value from acc
+            (exps exps) ; Default value from exps
+          )
+          (if (environment? acc) 
+            (set! env acc)
+            #f
+          )
+          (if (null? exps) 
+            acc
+            (loop (eval-expression (car exps) env) (cdr exps))
+          )
+        )
+      )
       (proc-exp (ids body)
-                (closure ids body env))
+        (closure ids body env)
+      )
       (app-exp (rator rands)
                (let ((proc (eval-expression rator env))
-                     (args (eval-rands rands env)))
-                 (if (procval? proc)
+                  (args (eval-rands rands env)))
+                  (if (procval? proc)
                      (apply-procedure proc args)
                      (eopl:error 'eval-expression
-                                 "Attempt to apply non-procedure ~s" proc)))))))
+                                 "Attempt to apply non-procedure ~s" proc)))
+      )
+    )
+  )
+)
 
 ; funciones auxiliares para aplicar eval-expression a cada elemento de una 
 ; lista de operandos (expresiones)
