@@ -77,6 +77,8 @@
                 proc-exp)
     (expression ( "{" expression (arbno expression) "}")
                 app-exp)
+    (expression ("eclipse" "(" identifier ")" )
+                eclipse-exp)
     ;;;;;;
 
     (primitive ("+") add-prim)
@@ -170,6 +172,9 @@
             (loop (eval-expression (car exps) env) (cdr exps))
           )
         )
+      )
+      (eclipse-exp (id)
+        (apply-global-env env id)
       )
       (proc-exp (ids body)
         (closure ids body env)
@@ -296,6 +301,23 @@
               (if (number? list-index-r)
                 (+ list-index-r 1)
                 #f))))))
+
+(define apply-global-env
+  (lambda (env sym)
+    (cases environment env
+      (empty-env-record () 0)
+      (extended-env-record 
+        (syms vals env)
+        (let ((pos (list-find-position sym syms)))
+          (if (number? pos)
+            (+ 1 (apply-global-env env sym))
+            (+ 0 (apply-global-env env sym))
+          )
+        )
+      )
+    )
+  )
+)
 
 ;******************************************************************************************
 

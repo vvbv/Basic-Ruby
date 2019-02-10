@@ -1,11 +1,11 @@
 let x = 1
 in
     let y = 15
-    in begin
-        var xy = *y;
-        var yy = *xy;
-        println( +(yy,xy) );
-        var yy = x;
-        println( +(yy,xy) );
-    end
+    in 
+        let x = 7 
+        in 
+            let x = 7 
+            in begin
+                println( eclipse(x) );
+            end
 
