@@ -1,9 +1,13 @@
 # Basic Ruby
 
 ## Ejecución
+<hr>
+Forma simplificada  
+```bash 
+sh deploy.sh
+```
 
-Forma simplificada
-> sh deploy.sh
-
-Forma interactica, requiere la adición de ``` (interpretador)``` 
->racket ruby.rkt
+Forma interactica, (espera que exista un archivo llamado *input.rb*)
+```bash 
+racket ruby.rkt
+```
