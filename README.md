@@ -1,7 +1,7 @@
 # Basic Ruby
 
 ## Ejecución
-<hr>
+
 Forma simplificada  
 ```bash 
 sh deploy.sh
