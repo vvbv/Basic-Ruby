@@ -46,7 +46,7 @@
 ;Especificación Sintáctica (gramática)
 (define grammar-simple-interpreter
 	'(
-        	(program (expression) a-program)
+  	(program (expression) a-program)
 		(expression (number) lit-exp)
 		(expression (identifier) var-exp)
 		(expression
