@@ -15,9 +15,28 @@
 
 (define eval-program
 	(lambda (pgm)
-		(cases program pgm
+		(cases ruby-program pgm
 			(a-program (body)
-				(eval-expression body (init-env))
+				(eval-batch-expression body (init-env))
+			)
+		)
+	)
+)
+
+(define eval-batch-expression
+	(lambda (exp env)
+		(cases exp-batch exp
+			(a-batch (exp exps)
+				(let loop 
+					(
+						(acc (eval-expression exp env))
+						(exps exps)
+					)
+					(if (null? exps) 
+						acc
+						(loop (eval-expression (car exps) env) (cdr exps))
+					)
+				)
 			)
 		)
 	)
