@@ -50,6 +50,7 @@
 (define eval-expression
 	(lambda (exp env)
 		(cases expression exp
+			(declare-exp (exp exps) "not implemented")
 			(lit-exp (datum) datum)
 			(var-exp (id) (apply-env env id))
 			(primapp-exp (prim rands)

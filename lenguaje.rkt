@@ -48,6 +48,7 @@
 	'(
 		(ruby-program ("ruby" exp-batch "end") a-program)
   		(exp-batch (expression (arbno expression)) a-batch)
+		(expression ("declare" identifier (arbno "," identifier) ";") declare-exp)
 		(expression (number) lit-exp)
 		(expression (identifier) var-exp)
 		(expression
