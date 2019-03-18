@@ -48,6 +48,22 @@
 	'(
 		(ruby-program ("ruby" exp-batch "end") a-program)
   		(exp-batch (expression (arbno expression)) a-batch)
+		
+		(expression (simple-exp) a-simple-exp)
+		(simple-exp (simple-value complement) val-exp)
+		(simple-value (identifier) id-val)
+		(simple-value (number) num-val)
+		(simple-value (text) str-val)
+		(simple-value ("true") true-val)
+		(simple-value ("false") false-val)
+		(simple-value ("nil") nil-val)
+		(simple-value ("[" (arbno comp-value ",") "]") arr-val)
+		(comp-value (value) op-value)
+		(comp-value (unop comp-value) unop-value)
+		(value (simple-value) simple-val)
+		(value ("(" value val-compl ")") call-val)
+
+
 		(expression ("declare" identifier (arbno "," identifier) ";") declare-exp)
 		(expression (number) lit-exp)
 		(expression (identifier) var-exp)
