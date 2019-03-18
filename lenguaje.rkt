@@ -90,41 +90,25 @@
 		(bin-op ("..") in-range)
 		(bin-op ("...") ex-range)
 		(bin-op ("step") st-range)
-		
-
+		(complement ("=" comp-value calls) assign)
+		(complement (assign-op comp-value calls) assign-and)
+		(complement (calls) comp-calls)
+		(assign-op ("+=") add-eq)
+		(assign-op ("-=") diff-eq)
+		(assign-op ("*=") mult-eq)
+		(assign-op ("/=") div-eq)
+		(assign-op ("**=") pow-eq)
 		(expression ("declare" identifier (arbno "," identifier) ";") declare-exp)
-		(expression (number) lit-exp)
-		(expression (identifier) var-exp)
-		(expression
-			(primitive "(" (separated-list expression ",")")")
-		primapp-exp)
-		(expression 
-            	("if" expression "then" expression "else" expression)
-		if-exp)
-		(expression 
-            	("let" (arbno identifier "=" expression) "in" expression)
-		let-exp)
-		(expression 
-            	("proc" "(" (arbno identifier) ")" expression)
-		proc-exp)
-		(expression 
-            	( "(" expression (arbno expression) ")")
-		app-exp)
-		(expression 
-            	("letrec" (arbno identifier "(" (separated-list identifier ",") ")" "=" expression)  "in" expression) 
-		letrec-exp)
-		(expression 
-            	("begin" expression (arbno ";" expression) "end")
-		begin-exp)
-		(expression 
-            	("print" expression )
-		print-exp)
-		(expression ("set" identifier "=" expression) set-exp)
-		(primitive ("+") add-prim)
-		(primitive ("-") substract-prim)
-		(primitive ("*") mult-prim)
-		(primitive ("add1") incr-prim)
-		(primitive ("sub1") decr-prim)
+		(expression ("puts" comp-value (arbno "," comp-value)) puts-exp)
+		(expression ("if" comp-value (arbno "then") exp-batch (arbno "elseif" comp-value ("then")* exp-batch) (arbno "else" exp-batch) "end") if-exp)
+		(expression ("unless" comp-value (arbno "then") exp-batch (arbno "else" exp-batch) "end") unless-exp)
+		(expression ("while" comp-value (arbno "do") exp-batch "end") while-exp)
+		(expression ("until" comp-value (arbno "do") exp-batch "end") until-exp)
+		(expression ("for" identifier "in" comp-value (arbno "do") exp-batch "end") for-exp)
+		(expression ("def" identifier "(" (arbno identifier ",") ")" exp-batch "end") function-exp)
+		(expression ("super" identifier arguments ";") super-exp)
+		(class-decl ("class" identifier (arbno "<" identifier) "attr" (arbno ":" identifier ",") ";" (arbno method-decl) "end") class-exp)
+		(method-decl ("def" identifier "(" (arbno identifier ",") ")" exp-batch "end") a-method-decl)
     )
 )
 
