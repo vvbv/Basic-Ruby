@@ -79,7 +79,7 @@
 		(val-val-compl (bin-op value) binop-val)
 		(call ("." identifier arguments) method-call)
 		(call (arguments) arguments-call)
-		(calls (arbno call) some-calls)
+		(calls ((arbno call)) some-calls)
 		(arguments ("(" (arbno comp-value ",") ")") m-arguments)
 		(arguments ("[" (separated-list comp-value ",") "]") arr-arguments)
 		(un-op ("not") not-op)
