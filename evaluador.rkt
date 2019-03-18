@@ -33,7 +33,10 @@
 						(exps exps)
 					)
 					(if (null? exps) 
-						acc
+						(if (not (null? acc))
+							acc
+							'=>nill
+						)
 						(loop (eval-expression (car exps) env) (cdr exps))
 					)
 				)

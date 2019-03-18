@@ -1,3 +1,3 @@
 ruby
-    let x = 1 in print x
+    print 1
 end
