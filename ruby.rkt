@@ -15,6 +15,6 @@
 )
 
 (
-    (lambda (pgm) (eval-program  pgm)) 
+    (lambda (pgm) (eval-ruby-program  pgm)) 
     (scan&parse  (read-file "input.rb"))
 )

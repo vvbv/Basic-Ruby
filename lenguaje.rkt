@@ -46,7 +46,7 @@
 ;Especificación Sintáctica (gramática)
 (define grammar-simple-interpreter
 	'(
-		(ruby-program ("ruby" exp-batch "end") a-program)
+		(ruby-program ("ruby" (arbno class-decl) exp-batch "end") a-program)
   		(exp-batch (expression (arbno expression)) a-batch)
 		(expression (simple-exp) a-simple-exp)
 		(expression ("declare" identifier (arbno "," identifier) ";") declare-exp)

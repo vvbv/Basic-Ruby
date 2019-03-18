@@ -13,13 +13,29 @@
 ;eval-program: <programa> -> numero
 ; función que evalúa un programa teniendo en cuenta un ambiente dado (se inicializa dentro del programa)
 
-(define eval-program
+; (define eval-program
+; 	(lambda (pgm)
+; 		(cases ruby-program pgm
+; 			(a-program (body)
+; 				(eval-batch-expression body (init-env))
+; 			)
+; 		)
+; 	)
+; )
+
+(define eval-ruby-program
 	(lambda (pgm)
 		(cases ruby-program pgm
-			(a-program (body)
-				(eval-batch-expression body (init-env))
+			(a-program (class body)
+				(eval-ruby-expression class body (init-env))
 			)
 		)
+	)
+)
+
+(define eval-ruby-expression
+	(lambda (class exp-batch env)
+		(display "Gramatica correcta.\n")
 	)
 )
 
