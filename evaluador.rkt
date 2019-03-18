@@ -25,23 +25,24 @@
 
 (define eval-batch-expression
 	(lambda (exp env)
-		(cases exp-batch exp
-			(a-batch (exp exps)
-				(let loop 
-					(
-						(acc (eval-expression exp env))
-						(exps exps)
-					)
-					(if (null? exps) 
-						(if (not (null? acc))
-							acc
-							'=>nill
-						)
-						(loop (eval-expression (car exps) env) (cdr exps))
-					)
-				)
-			)
-		)
+		(display "comentado para prueba")
+		; (cases exp-batch exp
+		; 	(a-batch (exp exps)
+		; 		(let loop 
+		; 			(
+		; 				(acc (eval-expression exp env))
+		; 				(exps exps)
+		; 			)
+		; 			(if (null? exps) 
+		; 				(if (not (null? acc))
+		; 					acc
+		; 					'=>nill
+		; 				)
+		; 				(loop (eval-expression (car exps) env) (cdr exps))
+		; 			)
+		; 		)
+		; 	)
+		; )
 	)
 )
 
