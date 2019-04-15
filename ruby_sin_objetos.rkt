@@ -168,9 +168,15 @@
     (cases expression exp
       (a-simple-exp (exp) (eval-simple-expression exp env))
       (declare-exp (id idss) idss)
-      (puts-exp (vals) (let ((vals-k (map (lambda (x) (eval-comp-value x env)) vals)))
-                         ((for-each (lambda (vals-k)
-                                      (eopl:pretty-print vals-k))))))
+      (puts-exp (vals) 
+        (let ((vals-k (map (lambda (x) (eval-comp-value x env)) vals)))
+          (for-each 
+            (lambda (vals-k)
+              (eopl:pretty-print vals-k)
+            )
+          )
+        )
+      )
       (if-exp (val exp1 val2 exp2 exp3) val)
       (unless-exp (val exp1 exp2) val)
       (while-exp (val exp) val)

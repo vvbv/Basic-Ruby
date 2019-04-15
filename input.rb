@@ -1,2 +1,3 @@
-declare a,b;
 puts(1);
+declare a,b;
+
