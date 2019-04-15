@@ -171,9 +171,10 @@
       (puts-exp (vals) 
         (let ((vals-k (map (lambda (x) (eval-comp-value x env)) vals)))
           (for-each 
-            (lambda (vals-k)
-              (eopl:pretty-print vals-k)
+            (lambda (val)
+              (eopl:pretty-print val)
             )
+            vals-k
           )
         )
       )
