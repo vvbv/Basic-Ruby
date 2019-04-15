@@ -7,7 +7,7 @@ Forma simplificada
 sh deploy.sh
 ```
 
-Forma interactica, (espera que exista un archivo llamado *input.rb*)
+Forma interactiva, (espera que exista un archivo llamado *input.rb*)
 ```bash 
-racket ruby.rkt
+racket ruby_sin_objetos.rkt
 ```
