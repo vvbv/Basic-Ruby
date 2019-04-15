@@ -305,8 +305,21 @@
           [(and (number? arg1) (number? arg2)) 
             (* arg1 arg2)
           ]
-          [(and (string? arg1) (string? arg2)) 
-            (string-append arg1 arg2)
+          [(and (string? arg1) (number? arg2)) 
+            (let lp ([n (- arg2 1)])
+              (if (zero? n)
+                arg1
+                (string-append arg1 (lp (- n 1)))
+              )
+            ) 
+          ]
+          [(and (number? arg1) (string? arg2)) 
+            (let lp ([n (- arg1 1)])
+              (if (zero? n)
+                arg2
+                (string-append arg2 (lp (- n 1)))
+              )
+            ) 
           ]
         )
       )
