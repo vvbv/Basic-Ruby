@@ -297,6 +297,9 @@
           [(and (string? arg1) (string? arg2)) 
             (string-append arg1 arg2)
           ]
+          [(and (list? arg1) (list? arg2)) 
+            (append arg1 arg2)
+          ]
           [(and (string? arg1) (number? arg2)) 
             (eopl:error 'Error "No implicit conversion of Integer into String")
           ]
@@ -324,6 +327,22 @@
               (if (zero? n)
                 arg2
                 (string-append arg2 (lp (- n 1)))
+              )
+            ) 
+          ]
+          [(and (list? arg1) (number? arg2)) 
+            (let lp ([n (- arg2 1)])
+              (if (zero? n)
+                arg1
+                (append arg1 (lp (- n 1)))
+              )
+            ) 
+          ]
+          [(and (number? arg1) (list? arg2)) 
+            (let lp ([n (- arg1 1)])
+              (if (zero? n)
+                arg2
+                (append arg2 (lp (- n 1)))
               )
             ) 
           ]
