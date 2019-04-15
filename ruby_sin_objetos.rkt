@@ -1,5 +1,6 @@
 #lang eopl
 (require racket/string)
+(require 2htdp/batch-io) ; Temporal para evaluación automática
 ;;-------------------------------------------------------------;;
 ;; Asignatura: Fundamentos de Lenguajes de Programación (FLP)  ;;
 ;; Proyecto: Implementando un Ruby básico usando SLLGEN        ;;
@@ -362,14 +363,6 @@
   (lambda ()
     (empty-env-record)))       ;llamado al constructor de ambiente vacío 
 
-; Ambiente inicial
-;(define init-env
-;  (lambda ()
-;    (extend-env
-;     '(x y z)
-;     '(4 2 5)
-;     (empty-env))))
-
 (define (init-env) (empty-env))
 
 ;extend-env: <list-of symbols> <list-of numbers> enviroment -> enviroment
@@ -486,3 +479,8 @@
 (define true-value?
   (lambda (x)
     (not (zero? x))))
+
+(
+    (lambda (pgm) (eval-program  pgm)) 
+    (scan&parse  (read-file "input.rb"))
+)
