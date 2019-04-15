@@ -329,7 +329,19 @@
           ]
         )
       )
-      (div () (/ arg1 arg2))
+      (div () 
+        (cond
+          [(and (number? arg1) (number? arg2)) 
+            (/ arg1 arg2)
+          ]
+          [(and (string? arg1) (number? arg2)) 
+            (eopl:error 'Error "No implicit conversion of Integer into String")
+          ]
+          [(and (number? arg1) (string? arg2)) 
+            (eopl:error 'Error "String can't be coerced into integer")
+          ]
+        )
+      )
       (mod () (modulo arg1 arg2))
       (pow () (expt arg1 arg2))
       (great () (> arg1 arg2))
