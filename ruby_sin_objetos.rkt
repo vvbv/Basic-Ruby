@@ -27,7 +27,7 @@
            (or letter whitespace) 
            (arbno (or letter digit whitespace ":" "?" "=" "'") ) "\"" ) 
           string) 
-)
+  )
 )
 
 ;Especificación Sintáctica (gramática)
@@ -248,7 +248,7 @@
     (cases simple-value s-val
       (id-val (id) (apply-env env id))
       (int-val (num) num)
-      (str-val (val) val)
+      (str-val (val) (substring val 1 (- (string-length val) 1)) )
       (true-val () #t)
       (false-val () #f)
       (nil-val () '=>nil)
@@ -289,9 +289,27 @@
 (define apply-bin-op
   (lambda (op arg1 arg2)
     (cases bin-op op
-      (add () (+ arg1 arg2))
+      (add () 
+        (cond
+          [(and (number? arg1) (number? arg2)) 
+            (+ arg1 arg2)
+          ]
+          [(and (string? arg1) (string? arg2)) 
+            (string-append arg1 arg2)
+          ]
+        )
+      )
       (diff () (- arg1 arg2))
-      (mult () (* arg1 arg2))
+      (mult () 
+        (cond
+          [(and (number? arg1) (number? arg2)) 
+            (* arg1 arg2)
+          ]
+          [(and (string? arg1) (string? arg2)) 
+            (string-append arg1 arg2)
+          ]
+        )
+      )
       (div () (/ arg1 arg2))
       (mod () (modulo arg1 arg2))
       (pow () (expt arg1 arg2))
