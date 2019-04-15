@@ -24,7 +24,7 @@
     (number (digit (arbno digit)) number) 
     (number ("-" digit (arbno digit)) number) 
     (text ("\"" 
-           (or letter whitespace) 
+           (or letter whitespace digit) 
            (arbno (or letter digit whitespace ":" "?" "=" "'") ) "\"" ) 
           string) 
   )
@@ -296,6 +296,12 @@
           ]
           [(and (string? arg1) (string? arg2)) 
             (string-append arg1 arg2)
+          ]
+          [(and (string? arg1) (number? arg2)) 
+            (eopl:error 'Error "No implicit conversion of Integer into String")
+          ]
+          [(and (number? arg1) (string? arg2)) 
+            (eopl:error 'Error "String can't be coerced into integer")
           ]
         )
       )
