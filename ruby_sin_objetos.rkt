@@ -153,15 +153,20 @@
 
 (define (eval-program pgm)
   (cases ruby-program pgm
-    (a-program (a-batch) (eval-exp-batch a-batch (empty-env)))
-    ))
+    (a-program (a-batch) 
+      (eval-exp-batch a-batch (empty-env))
+    )
+  )
+)
 
 ;eval-exp-batch: Evalúa la última expresión
 (define (eval-exp-batch batch env)
   (cases exp-batch batch
-    (a-batch (exp exps) (eval-expressions exp exps env))
+    (a-batch (exp exps) 
+      (eval-expressions exp exps env)
     )
   )
+)
 
 ;eval-expressions: Evalúa la expresión en el ambiente de entrada
 (define (eval-expressions exp exps env)
