@@ -163,7 +163,7 @@
 (define (eval-exp-batch batch env)
   (cases exp-batch batch
     (a-batch (exp exps) 
-      ;;; (cdr exps) se envioa a eval-expressions para no deformar el 
+      ;;; (cdr exps) se envía a eval-expressions para no deformar el 
       ;;; interpretador original, pero no es necesario ya que la evaluación
       ;;; iterativa de las expresiones se realiza aquí.
       (let loop ((acc (eval-expressions exp (cdr exps) env))(exps exps))
