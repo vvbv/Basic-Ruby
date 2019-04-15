@@ -153,15 +153,28 @@
 
 (define (eval-program pgm)
   (cases ruby-program pgm
-    (a-program (a-batch) (eval-exp-batch a-batch (empty-env)))
-    ))
+    (a-program (a-batch) 
+      (eval-exp-batch a-batch (empty-env))
+    )
+  )
+)
 
 ;eval-exp-batch: Evalúa la última expresión
 (define (eval-exp-batch batch env)
   (cases exp-batch batch
-    (a-batch (exp exps) (eval-expressions exp exps env))
+    (a-batch (exp exps) 
+      ;;; (cdr exps) se envioa a eval-expressions para no deformar el 
+      ;;; interpretador original, pero no es necesario ya que la evaluación
+      ;;; iterativa de las expresiones se realiza aquí.
+      (let loop ((acc (eval-expressions exp (cdr exps) env))(exps exps))
+        (if (null? exps) 
+          acc
+          (loop (eval-expressions (car exps) (cdr exps) env)(cdr exps))
+        )
+      )
     )
   )
+)
 
 ;eval-expressions: Evalúa la expresión en el ambiente de entrada
 (define (eval-expressions exp exps env)
@@ -297,6 +310,9 @@
           [(and (string? arg1) (string? arg2)) 
             (string-append arg1 arg2)
           ]
+          [(and (list? arg1) (list? arg2)) 
+            (append arg1 arg2)
+          ]
           [(and (string? arg1) (number? arg2)) 
             (eopl:error 'Error "No implicit conversion of Integer into String")
           ]
@@ -327,9 +343,37 @@
               )
             ) 
           ]
+          [(and (list? arg1) (number? arg2)) 
+            (let lp ([n (- arg2 1)])
+              (if (zero? n)
+                arg1
+                (append arg1 (lp (- n 1)))
+              )
+            ) 
+          ]
+          [(and (number? arg1) (list? arg2)) 
+            (let lp ([n (- arg1 1)])
+              (if (zero? n)
+                arg2
+                (append arg2 (lp (- n 1)))
+              )
+            ) 
+          ]
         )
       )
-      (div () (/ arg1 arg2))
+      (div () 
+        (cond
+          [(and (number? arg1) (number? arg2)) 
+            (/ arg1 arg2)
+          ]
+          [(and (string? arg1) (number? arg2)) 
+            (eopl:error 'Error "No implicit conversion of Integer into String")
+          ]
+          [(and (number? arg1) (string? arg2)) 
+            (eopl:error 'Error "String can't be coerced into integer")
+          ]
+        )
+      )
       (mod () (modulo arg1 arg2))
       (pow () (expt arg1 arg2))
       (great () (> arg1 arg2))
