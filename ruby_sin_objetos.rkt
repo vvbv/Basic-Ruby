@@ -482,5 +482,5 @@
 
 (
     (lambda (pgm) (eval-program  pgm)) 
-    (scan&parse  (read-file "input.rb"))
+    (scan&parse  (string-append "ruby " (read-file "input.rb") " end"))
 )
