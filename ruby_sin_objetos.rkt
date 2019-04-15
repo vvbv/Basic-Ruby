@@ -166,10 +166,10 @@
       ;;; (cdr exps) se envía a eval-expressions para no deformar el 
       ;;; interpretador original, pero no es necesario ya que la evaluación
       ;;; iterativa de las expresiones se realiza aquí.
-      (let loop ((acc (eval-expressions exp (cdr exps) env))(exps exps))
+      (let loop ((acc (eval-expressions exp (list) env))(exps exps))
         (if (null? exps) 
           acc
-          (loop (eval-expressions (car exps) (cdr exps) env)(cdr exps))
+          (loop (eval-expressions (car exps) (list) env)(cdr exps))
         )
       )
     )
