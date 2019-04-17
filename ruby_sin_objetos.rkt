@@ -187,7 +187,10 @@
                              (eval-expressions (car exps) (cdr exps) env)
                              (eopl:pretty-print '=>nil))))
       
-      (if-exp (val exp1 val2 exp2 exp3) val)
+      (if-exp (test-exp true-exp test-exps2 true-exps2 false-exp)
+              (if (eval-comp-value test-exp env)
+                  (eval-exp-batch true-exp env)
+                  (eval-elif test-exps2 true-exps2 false-exp env)))
       (unless-exp (val exp1 exp2) val)
       (while-exp (val exp) val)
       (until-exp (val exp) val)
@@ -195,6 +198,16 @@
       (function-exp (id ids exp) id)
       (return-exp (val) val) 
       ))
+
+; eval-elif: Función que retorna el valor del elsif evaluado si es true, si ninguno es true
+;retorna el valor del else. Si no hay else, retorna =>'nil
+(define eval-elif
+  (lambda (test-exps true-exps false-exp env)
+    (cond
+      ((and (null? test-exps) (not (null? false-exp))) (eval-exp-batch (car false-exp) env))
+      ((and (null? test-exps) (null? false-exp)) (eopl:pretty-print '=>nil))
+      ((eval-comp-value (car test-exps) env) (eval-exp-batch (car true-exps) env))
+      (else (eval-elif (cdr test-exps) (cdr true-exps) false-exp env)))))
 
 ;Evaluaciones Complementarias
 ;****************************
@@ -591,5 +604,5 @@
 
 (
     (lambda (pgm) (eval-program  pgm)) 
-    (scan&parse  (string-append "ruby " (read-file "input.rb") " end"))
+    (scan&parse  (string-append "ruby " (read-file "input.txt") " end"))
 )
