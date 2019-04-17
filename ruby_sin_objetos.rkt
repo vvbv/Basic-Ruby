@@ -194,7 +194,10 @@
       (for-exp (id val exp) id)
       ;(expression ("def" identifier "(" (separated-list identifier ",") ")" exp-batch "end") function-exp)
       (function-exp (id ids exp) 
-       (extend-env-recursively id ids exp env)
+        (if (not (null? exps))
+          (eval-expressions (car exps) (cdr exps) (extend-env-recursively id ids exp env))
+          (eopl:pretty-print '=>nil)
+        )
       )
       (return-exp (val) val) 
       ))
@@ -592,7 +595,11 @@
   (lambda (x)
     (not (zero? x))))
 
-(
-    (lambda (pgm) (eval-program  pgm)) 
-    (scan&parse  (string-append "ruby " (read-file "input.rb") " end"))
-)
+
+(display (scan&parse  (string-append "ruby " (read-file "input.rb") " end")))
+
+
+;(
+;    (lambda (pgm) (eval-program  pgm)) 
+;    (scan&parse  (string-append "ruby " (read-file "input.rb") " end"))
+;)
