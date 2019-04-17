@@ -192,7 +192,10 @@
       (while-exp (val exp) val)
       (until-exp (val exp) val)
       (for-exp (id val exp) id)
-      (function-exp (id ids exp) id)
+      ;(expression ("def" identifier "(" (separated-list identifier ",") ")" exp-batch "end") function-exp)
+      (function-exp (id ids exp) 
+       (extend-env-recursively id ids exp env)
+      )
       (return-exp (val) val) 
       ))
 
@@ -235,7 +238,7 @@
   (lambda (c-val env)
     (cases comp-value c-val
       (a-value (val) (eval-value val env))
-      (unop-value (un-op comp-val) (let ((exp (eval-comp-value comp-val exp)))
+      (unop-value (un-op comp-val) (let ((exp (eval-comp-value comp-val env)))
                                 (apply-un-op un-op exp))))))
 
 ;eval-value:
