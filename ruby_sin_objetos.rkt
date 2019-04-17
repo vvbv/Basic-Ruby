@@ -176,7 +176,7 @@
                      (eopl:pretty-print '=>nil))
                                ))
       (puts-exp (vals) 
-        (let ((vals-k (map (lambda (x) (eopl:pretty-print(eval-comp-value x env))) vals)))
+        (begin (map (lambda (x) (eopl:pretty-print(eval-comp-value x env))) vals)
           (if (not (null? exps))
                 (eval-expressions (car exps) (cdr exps) env)
                 (eopl:pretty-print '=>nil))))
@@ -202,7 +202,7 @@
 (define eval-complement
   (lambda (s-val compl env)
     (cases complement compl
-      (assign (val calls) (extend-env s-val (eval-val-compl val (eval-comp-value calls) env) env))
+      (assign (val calls) (extend-env s-val (eval-val-compl val calls env) env))
       (assign-and (as-op val calls)
                   (apply-assign-op as-op s-val (eval-val-compl val calls env)))
       (comp-calls (calls) (apply-call-list s-val calls env))
