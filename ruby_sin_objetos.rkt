@@ -165,21 +165,28 @@
     (a-batch (exp exps) (eval-expressions exp exps env))
     )
   )
-
+;(eval-simple-expression exp env)
 ;eval-expressions: Evalúa la expresión en el ambiente de entrada
 (define (eval-expressions exp exps env)
     (cases expression exp 
-      (a-simple-exp (exp) (eval-simple-expression exp env))
+      (a-simple-exp (exp) (begin
+                            (eval-simple-expression exp env)
+                            (if (not (null? exps))
+                                (eval-expressions (car exps) (cdr exps) env)
+                                (eopl:pretty-print '=>nil))))
+
       (declare-exp (id idss) (let ((args (build-a-list (+ (length idss) 1) 'nil)))
                                (if (not (null? exps))
-                     (eval-expressions (car exps) (cdr exps) (extend-env (cons id idss) args env))
-                     (eopl:pretty-print '=>nil))
-                               ))
-      (puts-exp (vals) 
-        (begin (map (lambda (x) (eopl:pretty-print(eval-comp-value x env))) vals)
-          (if (not (null? exps))
-                (eval-expressions (car exps) (cdr exps) env)
-                (eopl:pretty-print '=>nil))))
+                                   (eval-expressions
+                                    (car exps) (cdr exps) (extend-env (cons id idss) args env))
+                                   (eopl:pretty-print '=>nil))))
+
+      (puts-exp (vals) (begin
+                         (map (lambda (x) (eopl:pretty-print(eval-comp-value x env))) vals)
+                         (if (not (null? exps))
+                             (eval-expressions (car exps) (cdr exps) env)
+                             (eopl:pretty-print '=>nil))))
+      
       (if-exp (val exp1 val2 exp2 exp3) val)
       (unless-exp (val exp1 exp2) val)
       (while-exp (val exp) val)
@@ -202,7 +209,11 @@
 (define eval-complement
   (lambda (s-val compl env)
     (cases complement compl
-      (assign (val calls) (extend-env s-val (eval-val-compl val calls env) env))
+      (assign (c-val calls) (setref! (apply-env-ref env (get-id s-val))
+                                         (apply-call-list
+                                         (eval-comp-value c-val env)
+                                         calls
+                                         env)))
       (assign-and (as-op val calls)
                   (apply-assign-op as-op s-val (eval-val-compl val calls env)))
       (comp-calls (calls) (apply-call-list s-val calls env))
@@ -236,7 +247,7 @@
                  (eval-val-compl (eval-comp-value c-val env) val-comp env))
       )))
 
-;eval-val-compl:
+;eval-val-compl: 
 (define eval-val-compl
   (lambda (a-val a-v-compl env)
     (cases val-compl a-v-compl
@@ -268,8 +279,9 @@
 (define apply-call-list
   (lambda (value c-list env)
     (cases calls c-list
-      (some-calls (calls) (map (lambda (x) (apply-call value x env)) calls))
-      )))
+      (some-calls (calls) (if(null? calls)
+                             value
+                             (map (lambda (x) (apply-call value x env)) calls))))))
 
 ;apply-call:
 (define apply-call
@@ -279,12 +291,18 @@
       (arguments-call (args) (apply-arguments value args env))
      )))
 
-;apply-arguments: 
+;apply-arguments:  
 (define apply-arguments
   (lambda (a-val args env)
     (cases arguments args
-      (some-arguments (vals) vals); ????????? No sé cómo hacer ésta
-      (arr-arguments (val vals) val)
+      (some-arguments (vals) (let ((proc (eval-comp-value a-val env))
+                                   (args (map (lambda (x)
+                                                (eopl:pretty-print(eval-comp-value x env))) vals)))
+                               (if (procval? proc)
+                                   (apply-procedure proc args)
+                                   (eopl:error 'eval-expression
+                                               "Attempt to apply non-procedure ~s" proc))))
+      (arr-arguments (val vals) a-val)
       )))
 
 ;apply-bin-op:
@@ -495,6 +513,13 @@
 
 ;*******************************************************************************************
 ; Funciones auxiliares
+;get-id: Retorna el id de un s-val
+(define get-id
+  (lambda (s-val)
+    (cases simple-value s-val
+      (id-val (id) id)
+      (else (eopl:error 'Error "Expected id, given ~s" s-val)))))
+
 ;Función para aplicar eval-expression a cada elemento de una lista de operandos (expresiones)
 (define eval-rands
   (lambda (rands env)

@@ -1,4 +1,4 @@
-declare a;
-puts ((1+2)+(3+3));
-puts ((1+(2+3))+4);
-puts a;
+declare a,b,c;
+b = 6 ;
+c = 10 ;
+puts a,b,c;
