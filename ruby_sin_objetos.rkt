@@ -332,10 +332,10 @@
 (define apply-assign-op
   (lambda (as-op var-val a-val)
     (cases assign-op as-op
-      (add-eq () (+ var-val a-val))
+      (add-eq () (sum var-val a-val))
       (diff-eq () (- var-val a-val))
-      (mult-eq () (* var-val a-val))
-      (div-eq () (/ var-val a-val))
+      (mult-eq () (multi var-val a-val))
+      (div-eq () (divi var-val a-val))
       (pow-eq () (expt var-val a-val))
       )))
 
