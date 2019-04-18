@@ -171,17 +171,17 @@
 ;eval-expressions: Evalúa la expresión en el ambiente de entrada
 (define (eval-expressions exp exps env)
     (cases expression exp 
+
       (a-simple-exp (exp) 
         (eval-simple-expression exp env)
-        (if (not (null? exps))
-          (eval-expressions (car exps) (cdr exps) env)
-          (eval-next-exps exps env)
+        (eval-next-exps exps env)
+      )
+
+      (declare-exp (id idss) 
+        (let ((args (build-a-list (+ (length idss) 1) 'nil)))
+          (eval-next-exps exps (extend-env (cons id idss) args env))
         )
       )
-      (declare-exp (id idss) (let ((args (build-a-list (+ (length idss) 1) 'nil)))
-                               (eval-next-exps exps
-                                               (extend-env (cons id idss) args env))))
-
 
       (puts-exp (vals) 
         (map 
@@ -197,12 +197,17 @@
       )
 
       (if-exp (test-exp true-exp test-exps2 true-exps2 false-exp)
-              (if (eval-comp-value test-exp env)
-                  (begin (eval-exp-batch true-exp env)
-                         (eval-next-exps exps env))
-                  (begin
-                    (eval-elif test-exps2 true-exps2 false-exp env)
-                    (eval-next-exps exps env))))
+        (if (eval-comp-value test-exp env)
+          (begin 
+            (eval-exp-batch true-exp env)
+            (eval-next-exps exps env)
+          )
+          (begin
+            (eval-elif test-exps2 true-exps2 false-exp env)
+            (eval-next-exps exps env)
+          )
+        )
+      )
       
       (unless-exp (test-exp exp else-exp)
         (if (eval-comp-value test-exp env)
@@ -221,17 +226,19 @@
       )
       
       (while-exp (val exp) val)
+
       (until-exp (val exp) val)
+
       (for-exp (id val exp) id)
+
       (function-exp (id ids exp)
-        (if (not (null? exps))
-          (eval-expressions (car exps) (cdr exps) (a-recursive-env id ids exp env))
-          (eopl:pretty-print '=>nil)
-        )
+        (eval-next-exps exps (a-recursive-env id ids exp env))
       )
+
       (return-exp (val) 
         val
       ) 
+
     )
 )
 
@@ -239,8 +246,11 @@
 (define eval-next-exps
   (lambda (exps env)
     (if (not (null? exps))
-             (eval-expressions (car exps) (cdr exps) env)
-             (eopl:pretty-print '=>nil))))
+      (eval-expressions (car exps) (cdr exps) env)
+      (eopl:pretty-print '=>nil)
+    )
+  )
+)
 
 ; eval-elif: Función que retorna el valor del elsif evaluado si es true, si ninguno es true
 ;retorna el valor del else. Si no hay else, retorna =>'nil
@@ -357,6 +367,7 @@
   (lambda (value c-list env)
     (cases calls c-list
       (some-calls (calls) 
+        (display env)
         (if (null? calls)
           value
           (eval-comp-value (apply-call value (car calls) env) env) ;;;; BETA 
