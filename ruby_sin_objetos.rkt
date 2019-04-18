@@ -191,10 +191,7 @@
           ) 
           vals
         )
-        (if (not (null? exps))
-          (eval-expressions (car exps) (cdr exps) env)
-          (eval-next-exps exps env)
-        )
+        (eval-next-exps exps env)
       )
 
       (if-exp (test-exp true-exp test-exps2 true-exps2 false-exp)
@@ -212,12 +209,12 @@
       
       (unless-exp (test-exp exp else-exp)
         (if (eval-comp-value test-exp env)
-          (begin
-            (cond 
-              [(not (null? else-exp)) (eval-exp-batch (car else-exp) env)]
-            )
+          (if (null? else-exp)
+                (eval-next-exps exps env)
+                (begin
+            (eval-exp-batch (car else-exp) env)
             (eval-next-exps exps env)
-          )
+          ))   
           (begin
             (eval-exp-batch exp env)
             (eval-next-exps exps env)
@@ -225,11 +222,33 @@
         )
       )
       
-      (while-exp (val exp) val)
+      (while-exp (test-exp exp)
+                 (begin
+                       (let loop ()
+                         (when (eval-comp-value test-exp env)
+                           (eval-exp-batch exp env)
+                           (loop)))
+                       (eval-next-exps exps env)))
 
-      (until-exp (val exp) val)
+      (until-exp (test-exp exp)
+                 (begin
+                       (let loop ()
+                         (when (not (eval-comp-value test-exp env))
+                           (eval-exp-batch exp env)
+                           (loop)))
+                       (eval-next-exps exps env)))
+      
 
-      (for-exp (id val exp) id)
+      (for-exp (id range-exp exp)
+               (let ((m_env (extend-env (list id) (list 'nil) env)))
+               (begin
+                 (for-each
+                  (lambda (val)
+                    (begin
+                      (apply-set-ref id val m_env)
+                      (eval-exp-batch exp m_env)))
+                  (eval-comp-value range-exp env))
+                 (eval-next-exps exps env))))
 
       (function-exp (id ids exp)
         (eval-next-exps exps (a-recursive-env id ids exp env))
@@ -249,6 +268,11 @@
     )
   )
 )
+
+;apply-set-ref: asigna un valor a un id
+(define apply-set-ref
+  (lambda (id value env)
+    (setref! (apply-env-ref env id) value)))
 
 ; eval-elif: Función que retorna el valor del elsif evaluado si es true, si ninguno es true
 ;retorna el valor del else. Si no hay else, retorna =>'nil
@@ -278,13 +302,20 @@
   (lambda (s-val compl env)
     (cases complement compl
       (assign (c-val calls) 
-        (setref! 
-          (apply-env-ref env (get-id s-val))
-          (apply-call-list (eval-comp-value c-val env) calls env)
-        )
+        (apply-set-ref
+               (get-id s-val)
+               (apply-call-list
+                (eval-comp-value c-val env) calls env)
+               env)
       )
-      (assign-and (as-op val calls)
-                  (apply-assign-op as-op s-val (eval-val-compl val calls env)))
+      (assign-and (as-op c-val calls)
+                  (apply-set-ref
+                   (get-id s-val)
+                   (apply-assign-op as-op
+                                    (eval-simple-value s-val env)
+                                    (apply-call-list
+                                     (eval-comp-value c-val env) calls env))
+                   env))
       (comp-calls (calls) (apply-call-list s-val calls env))
       )
     ))
@@ -350,7 +381,7 @@
       (true-val () #t)
       (false-val () #f)
       (nil-val () '=>nil)
-      (arr-val (c-vals) (map (lambda (x) (eval-comp-value x env)) c-vals)) 
+      (arr-val (c-vals) (map (lambda (x) (eopl:pretty-print(eval-comp-value x env))) c-vals)) ;probando
     )
   )
 )

@@ -1,4 +1,11 @@
-
+puts "hola";
+puts "hola2";
+declare x;
+x = 0;
+while (x < 10 ) do
+puts x;
+x += 1;
+end
 def enIntervalo(min,max,value)
 	declare to_return;
 	to_return = false;
