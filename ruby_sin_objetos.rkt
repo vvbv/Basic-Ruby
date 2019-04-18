@@ -210,11 +210,12 @@
       (unless-exp (test-exp exp else-exp)
         (if (eval-comp-value test-exp env)
           (if (null? else-exp)
-                (eval-next-exps exps env)
-                (begin
-            (eval-exp-batch (car else-exp) env)
             (eval-next-exps exps env)
-          ))   
+            (begin
+              (eval-exp-batch (car else-exp) env)
+              (eval-next-exps exps env)
+            )
+          )   
           (begin
             (eval-exp-batch exp env)
             (eval-next-exps exps env)
@@ -223,32 +224,39 @@
       )
       
       (while-exp (test-exp exp)
-                 (begin
-                       (let loop ()
-                         (when (eval-comp-value test-exp env)
-                           (eval-exp-batch exp env)
-                           (loop)))
-                       (eval-next-exps exps env)))
+        (let loop ()
+          (when (eval-comp-value test-exp env)
+            (eval-exp-batch exp env)
+            (loop)
+          )
+        )
+        (eval-next-exps exps env)
+      )
 
       (until-exp (test-exp exp)
-                 (begin
-                       (let loop ()
-                         (when (not (eval-comp-value test-exp env))
-                           (eval-exp-batch exp env)
-                           (loop)))
-                       (eval-next-exps exps env)))
+                 
+        (let loop ()
+          (when (not (eval-comp-value test-exp env))
+            (eval-exp-batch exp env)
+            (loop)
+          )
+        )
+        (eval-next-exps exps env)
+      )
       
 
       (for-exp (id range-exp exp)
-               (let ((m_env (extend-env (list id) (list 'nil) env)))
-               (begin
-                 (for-each
-                  (lambda (val)
-                    (begin
-                      (apply-set-ref id val m_env)
-                      (eval-exp-batch exp m_env)))
-                  (eval-comp-value range-exp env))
-                 (eval-next-exps exps env))))
+        (let ((m_env (extend-env (list id) (list 'nil) env)))    
+          (for-each
+            (lambda (val)
+              (apply-set-ref id val m_env)
+              (eval-exp-batch exp m_env)
+            )
+            (eval-comp-value range-exp env)
+          )
+          (eval-next-exps exps env)
+        )
+      )
 
       (function-exp (id ids exp)
         (eval-next-exps exps (a-recursive-env id ids exp env))
