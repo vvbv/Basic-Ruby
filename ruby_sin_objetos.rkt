@@ -332,10 +332,10 @@
 (define apply-assign-op
   (lambda (as-op var-val a-val)
     (cases assign-op as-op
-      (add-eq () (+ var-val a-val))
+      (add-eq () (sum var-val a-val))
       (diff-eq () (- var-val a-val))
-      (mult-eq () (* var-val a-val))
-      (div-eq () (/ var-val a-val))
+      (mult-eq () (multi var-val a-val))
+      (div-eq () (divi var-val a-val))
       (pow-eq () (expt var-val a-val))
       )))
 
@@ -475,9 +475,16 @@
       (or-op () (or arg1 arg2))
       (in-range () (if (and (number? arg1) (number? arg2)) (eval-range (inclusive arg1 arg2 1)) 'error))
       (ex-range () (if (and (number? arg1) (number? arg2)) (eval-range (exclusive arg1 arg2 1)) 'error))
-      (st-range () (let ((list (eval-comp-value arg1 empty-env)))
-                     (eval-range (inclusive (car list) (list-ref list (length list)) arg2))))
-      )))
+      (st-range () 
+        (let ((list (eval-comp-value arg1 empty-env)))
+          (eval-range 
+            (inclusive (car list) (list-ref list (length list)) arg2)
+          )
+        )
+      )
+    )
+  )
+)
 
 ;*******************************************************************************************
 ;Referencias
