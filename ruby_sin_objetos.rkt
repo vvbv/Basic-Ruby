@@ -155,6 +155,7 @@
   (cases ruby-program pgm
     (a-program (a-batch) 
       (eval-exp-batch a-batch (empty-env))
+      (eopl:pretty-print '=>nil)
     )
   )
 )
@@ -212,9 +213,8 @@
       (unless-exp (test-exp exp else-exp)
         (if (eval-comp-value test-exp env)
           (begin
-            (if (null? else-exp)
-              (eval-exp-batch (car else-exp) env)
-              (eopl:pretty-print '=>nil)
+            (cond 
+              [(not (null? else-exp)) (eval-exp-batch (car else-exp) env)]
             )
             (eval-next-exps exps env)
           )
@@ -236,18 +236,16 @@
       )
 
       (return-exp (val) 
-        val
+        (eval-comp-value val env)
       ) 
-
     )
 )
 
 ;eval-next-exps: Evalúa las siguientes expresiones
 (define eval-next-exps
   (lambda (exps env)
-    (if (not (null? exps))
-      (eval-expressions (car exps) (cdr exps) env)
-      (eopl:pretty-print '=>nil)
+    (cond 
+      [(not (null? exps)) (eval-expressions (car exps) (cdr exps) env)]
     )
   )
 )
@@ -258,7 +256,7 @@
   (lambda (test-exps true-exps false-exp env)
     (cond
       ((and (null? test-exps) (not (null? false-exp))) (eval-exp-batch (car false-exp) env))
-      ((and (null? test-exps) (null? false-exp)) (eopl:pretty-print '=>nil))
+      ((and (null? test-exps) (null? false-exp)) #f)
       ((eval-comp-value (car test-exps) env) (eval-exp-batch (car true-exps) env))
       (else (eval-elif (cdr test-exps) (cdr true-exps) false-exp env)))))
 
@@ -353,7 +351,9 @@
       (false-val () #f)
       (nil-val () '=>nil)
       (arr-val (c-vals) (map (lambda (x) (eval-comp-value x env)) c-vals)) 
-      )))
+    )
+  )
+)
 
 ;apply-un-op:
 (define apply-un-op
@@ -367,10 +367,9 @@
   (lambda (value c-list env)
     (cases calls c-list
       (some-calls (calls) 
-        (display env)
         (if (null? calls)
           value
-          (eval-comp-value (apply-call value (car calls) env) env) ;;;; BETA 
+          (apply-call value (car calls) env)  ;;;; BETA 
         )
       )
     )
