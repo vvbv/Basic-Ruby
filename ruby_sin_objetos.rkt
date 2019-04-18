@@ -20,7 +20,7 @@
   '(
     (white-sp (whitespace) skip) 
     (comment ("#" (arbno (not #\newline))) skip) 
-    (identifier ((arbno "@") letter (arbno (or letter digit "_" "?" "="))) symbol) 
+    (identifier ((arbno "@") letter (arbno (or letter digit "_" "?"))) symbol) 
     (number (digit (arbno digit)) number) 
     (number ("-" digit (arbno digit)) number) 
     (text ("\"" 
