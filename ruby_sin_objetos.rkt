@@ -454,76 +454,14 @@
   (lambda (op arg1 arg2)
     (cases bin-op op
       (add () 
-        (cond
-          [(and (number? arg1) (number? arg2)) 
-            (+ arg1 arg2)
-          ]
-          [(and (string? arg1) (string? arg2)) 
-            (string-append arg1 arg2)
-          ]
-          [(and (list? arg1) (list? arg2)) 
-            (append arg1 arg2)
-          ]
-          [(and (string? arg1) (number? arg2)) 
-            (eopl:error 'Error "No implicit conversion of Integer into String")
-          ]
-          [(and (number? arg1) (string? arg2)) 
-            (eopl:error 'Error "String can't be coerced into integer")
-          ]
-        )
+        (sum arg1 arg2)
       )
       (diff () (- arg1 arg2))
       (mult () 
-        (cond
-          [(and (number? arg1) (number? arg2)) 
-            (* arg1 arg2)
-          ]
-          [(and (string? arg1) (number? arg2)) 
-            (let lp ([n (- arg2 1)])
-              (if (zero? n)
-                arg1
-                (string-append arg1 (lp (- n 1)))
-              )
-            ) 
-          ]
-          [(and (number? arg1) (string? arg2)) 
-            (let lp ([n (- arg1 1)])
-              (if (zero? n)
-                arg2
-                (string-append arg2 (lp (- n 1)))
-              )
-            ) 
-          ]
-          [(and (list? arg1) (number? arg2)) 
-            (let lp ([n (- arg2 1)])
-              (if (zero? n)
-                arg1
-                (append arg1 (lp (- n 1)))
-              )
-            ) 
-          ]
-          [(and (number? arg1) (list? arg2)) 
-            (let lp ([n (- arg1 1)])
-              (if (zero? n)
-                arg2
-                (append arg2 (lp (- n 1)))
-              )
-            ) 
-          ]
-        )
+        (multi arg1 arg2)
       )
       (div () 
-        (cond
-          [(and (number? arg1) (number? arg2)) 
-            (/ arg1 arg2)
-          ]
-          [(and (string? arg1) (number? arg2)) 
-            (eopl:error 'Error "No implicit conversion of Integer into String")
-          ]
-          [(and (number? arg1) (string? arg2)) 
-            (eopl:error 'Error "String can't be coerced into integer")
-          ]
-        )
+        (divi arg1 arg2)
       )
       (mod () (modulo arg1 arg2))
       (pow () (expt arg1 arg2))
@@ -698,6 +636,86 @@
               (if (number? list-index-r)
                 (+ list-index-r 1)
                 #f))))))
+
+(define sum
+  (lambda (arg1 arg2) 
+    (cond
+      [(and (number? arg1) (number? arg2)) 
+        (+ arg1 arg2)
+      ]
+      [(and (string? arg1) (string? arg2)) 
+        (string-append arg1 arg2)
+      ]
+      [(and (list? arg1) (list? arg2)) 
+        (append arg1 arg2)
+      ]
+      [(and (string? arg1) (number? arg2)) 
+        (eopl:error 'Error "No implicit conversion of Integer into String")
+      ]
+      [(and (number? arg1) (string? arg2)) 
+        (eopl:error 'Error "String can't be coerced into integer")
+      ]
+    )
+  )
+)
+
+(define multi
+  (lambda (arg1 arg2)
+    (cond
+      [(and (number? arg1) (number? arg2)) 
+        (* arg1 arg2)
+      ]
+      [(and (string? arg1) (number? arg2)) 
+        (let lp ([n (- arg2 1)])
+          (if (zero? n)
+            arg1
+            (string-append arg1 (lp (- n 1)))
+          )
+        ) 
+      ]
+      [(and (number? arg1) (string? arg2)) 
+        (let lp ([n (- arg1 1)])
+          (if (zero? n)
+            arg2
+            (string-append arg2 (lp (- n 1)))
+          )
+        ) 
+      ]
+      [(and (list? arg1) (number? arg2)) 
+        (let lp ([n (- arg2 1)])
+          (if (zero? n)
+            arg1
+            (append arg1 (lp (- n 1)))
+          )
+        ) 
+      ]
+      [(and (number? arg1) (list? arg2)) 
+        (let lp ([n (- arg1 1)])
+          (if (zero? n)
+            arg2
+            (append arg2 (lp (- n 1)))
+          )
+        ) 
+      ]
+    )
+  )
+)
+
+(define divi
+  (lambda (arg1 arg2)
+    (cond
+      [(and (number? arg1) (number? arg2)) 
+        (/ arg1 arg2)
+      ]
+      [(and (string? arg1) (number? arg2)) 
+        (eopl:error 'Error "No implicit conversion of Integer into String")
+      ]
+      [(and (number? arg1) (string? arg2)) 
+        (eopl:error 'Error "String can't be coerced into integer")
+      ]
+    )
+  )
+)
 
 ;*******************************************************************************************
 ;;;Rangos
