@@ -1,6 +1,6 @@
 #lang eopl
 (require racket/string)
-(require 2htdp/batch-io) ; Temporal para evaluación automática
+(require 2htdp/batch-io) ; Temporal 
 ;;-------------------------------------------------------------;;
 ;; Asignatura: Fundamentos de Lenguajes de Programación (FLP)  ;;
 ;; Proyecto: Implementando un Ruby básico usando SLLGEN        ;;
