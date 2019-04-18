@@ -171,33 +171,48 @@
     (cases expression exp 
       (a-simple-exp (exp) (begin
                             (eval-simple-expression exp env)
-                            (if (not (null? exps))
-                                (eval-expressions (car exps) (cdr exps) env)
-                                (eopl:pretty-print '=>nil))))
+                            (eval-next-exps exps env)))
 
       (declare-exp (id idss) (let ((args (build-a-list (+ (length idss) 1) 'nil)))
-                               (if (not (null? exps))
-                                   (eval-expressions
-                                    (car exps) (cdr exps) (extend-env (cons id idss) args env))
-                                   (eopl:pretty-print '=>nil))))
+                               (eval-next-exps exps
+                                               (extend-env (cons id idss) args env))))
 
       (puts-exp (vals) (begin
                          (map (lambda (x) (eopl:pretty-print(eval-comp-value x env))) vals)
-                         (if (not (null? exps))
-                             (eval-expressions (car exps) (cdr exps) env)
-                             (eopl:pretty-print '=>nil))))
+                         (eval-next-exps exps env)))
       
       (if-exp (test-exp true-exp test-exps2 true-exps2 false-exp)
               (if (eval-comp-value test-exp env)
-                  (eval-exp-batch true-exp env)
-                  (eval-elif test-exps2 true-exps2 false-exp env)))
-      (unless-exp (val exp1 exp2) val)
+                  (begin (eval-exp-batch true-exp env)
+                         (eval-next-exps exps env))
+                  (begin
+                    (eval-elif test-exps2 true-exps2 false-exp env)
+                    (eval-next-exps exps env))))
+      
+      (unless-exp (test-exp exp else-exp)
+                  (if (eval-comp-value test-exp env)
+                      (begin
+                        (if (null? else-exp)
+                            (eopl:pretty-print '=>nil)
+                            (eval-exp-batch (car else-exp) env))
+                        (eval-next-exps exps env))
+                      (begin
+                        (eval-exp-batch exp env)
+                        (eval-next-exps exps env))))
+      
       (while-exp (val exp) val)
       (until-exp (val exp) val)
       (for-exp (id val exp) id)
       (function-exp (id ids exp) id)
       (return-exp (val) val) 
       ))
+
+;eval-next-exps: Evalúa las siguientes expresiones
+(define eval-next-exps
+  (lambda (exps env)
+    (if (not (null? exps))
+             (eval-expressions (car exps) (cdr exps) env)
+             (eopl:pretty-print '=>nil))))
 
 ; eval-elif: Función que retorna el valor del elsif evaluado si es true, si ninguno es true
 ;retorna el valor del else. Si no hay else, retorna =>'nil
@@ -604,5 +619,5 @@
 
 (
     (lambda (pgm) (eval-program  pgm)) 
-    (scan&parse  (string-append "ruby " (read-file "input.txt") " end"))
+    (scan&parse  (string-append "ruby " (read-file "input.rb") " end"))
 )
