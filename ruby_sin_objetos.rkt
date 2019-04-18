@@ -268,30 +268,6 @@
     )
 )
 
-;eval-next-exps: Evalúa las siguientes expresiones
-(define eval-next-exps
-  (lambda (exps env)
-    (cond 
-      [(not (null? exps)) (eval-expressions (car exps) (cdr exps) env)]
-    )
-  )
-)
-
-;apply-set-ref: asigna un valor a un id
-(define apply-set-ref
-  (lambda (id value env)
-    (setref! (apply-env-ref env id) value)))
-
-; eval-elif: Función que retorna el valor del elsif evaluado si es true, si ninguno es true
-;retorna el valor del else. Si no hay else, retorna =>'nil
-(define eval-elif
-  (lambda (test-exps true-exps false-exp env)
-    (cond
-      ((and (null? test-exps) (not (null? false-exp))) (eval-exp-batch (car false-exp) env))
-      ((and (null? test-exps) (null? false-exp)) #f)
-      ((eval-comp-value (car test-exps) env) (eval-exp-batch (car true-exps) env))
-      (else (eval-elif (cdr test-exps) (cdr true-exps) false-exp env)))))
-
 ;Evaluaciones Complementarias
 ;****************************
 ;eval-simple-expression:evalua una expresión simple dentro de una expresión
@@ -626,6 +602,30 @@
 
 ;*******************************************************************************************
 ; Funciones auxiliares
+;eval-next-exps: Evalúa las siguientes expresiones
+(define eval-next-exps
+  (lambda (exps env)
+    (cond 
+      [(not (null? exps)) (eval-expressions (car exps) (cdr exps) env)]
+    )
+  )
+)
+
+;apply-set-ref: asigna un valor a un id
+(define apply-set-ref
+  (lambda (id value env)
+    (setref! (apply-env-ref env id) value)))
+
+; eval-elif: Función que retorna el valor del elsif evaluado si es true, si ninguno es true
+;retorna el valor del else. Si no hay else, retorna =>'nil
+(define eval-elif
+  (lambda (test-exps true-exps false-exp env)
+    (cond
+      ((and (null? test-exps) (not (null? false-exp))) (eval-exp-batch (car false-exp) env))
+      ((and (null? test-exps) (null? false-exp)) #f)
+      ((eval-comp-value (car test-exps) env) (eval-exp-batch (car true-exps) env))
+      (else (eval-elif (cdr test-exps) (cdr true-exps) false-exp env)))))
+
 ;get-id: Retorna el id de un s-val
 (define get-id
   (lambda (s-val)
