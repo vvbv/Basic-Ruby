@@ -162,31 +162,40 @@
 ;eval-exp-batch: Evalúa la última expresión
 (define (eval-exp-batch batch env)
   (cases exp-batch batch
-    (a-batch (exp exps) (eval-expressions exp exps env))
+    (a-batch (exp exps) 
+      (eval-expressions exp exps env)
     )
   )
+)
 ;(eval-simple-expression exp env)
 ;eval-expressions: Evalúa la expresión en el ambiente de entrada
 (define (eval-expressions exp exps env)
     (cases expression exp 
-      (a-simple-exp (exp) (begin
-                            (eval-simple-expression exp env)
-                            (if (not (null? exps))
-                                (eval-expressions (car exps) (cdr exps) env)
-                                (eopl:pretty-print '=>nil))))
-
+      (a-simple-exp (exp) 
+        (eval-simple-expression exp env)
+        (if (not (null? exps))
+          (eval-expressions (car exps) (cdr exps) env)
+          (eopl:pretty-print '=>nil)
+        )
+      )
       (declare-exp (id idss) (let ((args (build-a-list (+ (length idss) 1) 'nil)))
                                (if (not (null? exps))
                                    (eval-expressions
                                     (car exps) (cdr exps) (extend-env (cons id idss) args env))
                                    (eopl:pretty-print '=>nil))))
 
-      (puts-exp (vals) (begin
-                         (map (lambda (x) (eopl:pretty-print(eval-comp-value x env))) vals)
-                         (if (not (null? exps))
-                             (eval-expressions (car exps) (cdr exps) env)
-                             (eopl:pretty-print '=>nil))))
-      
+      (puts-exp (vals) 
+        (map 
+          (lambda (x) 
+            (eopl:pretty-print (eval-comp-value x env))
+          ) 
+          vals
+        )
+        (if (not (null? exps))
+          (eval-expressions (car exps) (cdr exps) env)
+          (eopl:pretty-print '=>nil)
+        )
+      )
       (if-exp (test-exp true-exp test-exps2 true-exps2 false-exp)
               (if (eval-comp-value test-exp env)
                   (eval-exp-batch true-exp env)
@@ -195,15 +204,17 @@
       (while-exp (val exp) val)
       (until-exp (val exp) val)
       (for-exp (id val exp) id)
-      ;(expression ("def" identifier "(" (separated-list identifier ",") ")" exp-batch "end") function-exp)
-      (function-exp (id ids exp) 
+      (function-exp (id ids exp)
         (if (not (null? exps))
-          (eval-expressions (car exps) (cdr exps) (extend-env-recursively id ids exp env))
+          (eval-expressions (car exps) (cdr exps) (a-recursive-env id ids exp env))
           (eopl:pretty-print '=>nil)
         )
       )
-      (return-exp (val) val) 
-      ))
+      (return-exp (val) 
+        val
+      ) 
+    )
+)
 
 ; eval-elif: Función que retorna el valor del elsif evaluado si es true, si ninguno es true
 ;retorna el valor del else. Si no hay else, retorna =>'nil
@@ -221,22 +232,28 @@
 (define eval-simple-expression
   (lambda (s-exp env)
     (cases simple-exp s-exp
-      (val-exp (s-val comp) (eval-complement s-val comp env))
-      )))
+      (val-exp (s-val comp) 
+        (eval-complement s-val comp env)
+      )
+    )
+  )
+)
 
 ;eval-complement:evalua una complemento dentro de una expresión:
 (define eval-complement
   (lambda (s-val compl env)
     (cases complement compl
-      (assign (c-val calls) (setref! (apply-env-ref env (get-id s-val))
-                                         (apply-call-list
-                                         (eval-comp-value c-val env)
-                                         calls
-                                         env)))
+      (assign (c-val calls) 
+        (setref! 
+          (apply-env-ref env (get-id s-val))
+          (apply-call-list (eval-comp-value c-val env) calls env)
+        )
+      )
       (assign-and (as-op val calls)
                   (apply-assign-op as-op s-val (eval-val-compl val calls env)))
       (comp-calls (calls) (apply-call-list s-val calls env))
-      )))
+      )
+    ))
 
 ;apply-assign-op:
 (define apply-assign-op
@@ -254,8 +271,14 @@
   (lambda (c-val env)
     (cases comp-value c-val
       (a-value (val) (eval-value val env))
-      (unop-value (un-op comp-val) (let ((exp (eval-comp-value comp-val env)))
-                                (apply-un-op un-op exp))))))
+      (unop-value (un-op comp-val) 
+        (let ((exp (eval-comp-value comp-val env)))
+          (apply-un-op un-op exp)
+        )
+      )
+    )
+  )
+)
 
 ;eval-value:
 (define eval-value
@@ -263,16 +286,25 @@
     (cases value a-val
       (a-s-val (val) (eval-simple-value val env))
       (compl-val (c-val val-comp)
-                 (eval-val-compl (eval-comp-value c-val env) val-comp env))
-      )))
+        (eval-val-compl (eval-comp-value c-val env) val-comp env)
+      )
+    )
+  )
+)
 
 ;eval-val-compl: 
 (define eval-val-compl
   (lambda (a-val a-v-compl env)
     (cases val-compl a-v-compl
-      (val-call (calls) (apply-call-list a-val calls env))
-      (binop-val (bin-op c-val)(apply-bin-op bin-op a-val (eval-comp-value c-val env)))
-      )))
+      (val-call (calls) 
+        (apply-call-list a-val calls env)
+      )
+      (binop-val (bin-op c-val) 
+        (apply-bin-op bin-op a-val (eval-comp-value c-val env))
+      )
+    )
+  )
+)
 
 ;eval-simple-value:
 (define eval-simple-value
@@ -298,31 +330,49 @@
 (define apply-call-list
   (lambda (value c-list env)
     (cases calls c-list
-      (some-calls (calls) (if(null? calls)
-                             value
-                             (map (lambda (x) (apply-call value x env)) calls))))))
+      (some-calls (calls) 
+        (if (null? calls)
+          value
+          (eval-comp-value (apply-call value (car calls) env) env) ;;;; BETA 
+        )
+      )
+    )
+  )
+)
 
 ;apply-call:
 (define apply-call
   (lambda (value a-call env)
     (cases call a-call
-;      (method-call (id args) id)
-      (arguments-call (args) (apply-arguments value args env))
-     )))
+;     (method-call (id args) id)
+      (arguments-call (args) 
+        (apply-arguments value args env)
+      )
+    )
+  )
+)
 
 ;apply-arguments:  
 (define apply-arguments
   (lambda (a-val args env)
     (cases arguments args
-      (some-arguments (vals) (let ((proc (eval-comp-value a-val env))
-                                   (args (map (lambda (x)
-                                                (eopl:pretty-print(eval-comp-value x env))) vals)))
-                               (if (procval? proc)
-                                   (apply-procedure proc args)
-                                   (eopl:error 'eval-expression
-                                               "Attempt to apply non-procedure ~s" proc))))
+      (some-arguments (vals) 
+        (let ([args (map (lambda (x)(eval-comp-value x env) ) vals) ])
+          (if (procval? a-val)
+            (apply-procedure a-val args env)
+            (let ((proc (eval-simple-value a-val env)))
+              (if (procval? proc)
+                (apply-procedure proc args env)
+                (eopl:error 'eval-expression "Attempt to apply non-procedure ~s" proc)
+              )
+            )
+          )
+        )
+      )
       (arr-arguments (val vals) a-val)
-      )))
+    )
+  )
+)
 
 ;apply-bin-op:
 (define apply-bin-op
@@ -456,7 +506,7 @@
 (define-datatype procval procval?
   (closure
    (ids (list-of symbol?))
-   (body expression?)
+   (body exp-batch?)
    (env environment?)))
 
 ;apply-procedure: evalua el cuerpo de un procedimientos en el ambiente extendido correspondiente
@@ -464,7 +514,11 @@
   (lambda (proc args env)
     (cases procval proc
       (closure (ids body env)
-               (eval-exp-batch body (extend-env ids args env))))))
+        (eval-exp-batch body (extend-env ids args env))
+      )
+    )
+  )
+)
 
 (define scheme-value? (lambda (v) #t))
 
@@ -502,9 +556,11 @@
 (define (a-recursive-env a-proc-name ids body env)
   (let ((vec (make-vector 1)))
     (let ((env (extended-env-record (list a-proc-name) vec env)))
-          (vector-set! vec 0 (closure ids body env))
-          env)
-    ))
+      (vector-set! vec 0 (closure ids body env))
+      env
+    )
+  )
+)
 
 ;iota: number -> list
 ;función que retorna una lista de los números desde 0 hasta end
@@ -607,7 +663,6 @@
 (define true-value?
   (lambda (x)
     (not (zero? x))))
-
 
 (
     (lambda (pgm) (eval-program  pgm)) 
