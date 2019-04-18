@@ -389,7 +389,7 @@
       (true-val () #t)
       (false-val () #f)
       (nil-val () '=>nil)
-      (arr-val (c-vals) (map (lambda (x) (eopl:pretty-print(eval-comp-value x env))) c-vals)) ;probando
+      (arr-val (c-vals) (map (lambda (x) (eval-comp-value x env)) c-vals)) ;probando
     )
   )
 )
@@ -408,7 +408,9 @@
       (some-calls (calls) 
         (if (null? calls)
           value
-          (apply-call value (car calls) env)  ;;;; BETA 
+          (if (null? (cdr calls))
+              (apply-call value (car calls) env)
+              (apply-call (apply-call value (car calls) env) (car (cdr calls)) env))
         )
       )
     )
@@ -427,6 +429,16 @@
   )
 )
 
+;;Función que retorna una sublista
+(define sub-list
+  (lambda (start len list count n_elem)
+    (cond
+      [(null? list) '()]
+      [(equal? len n_elem) '()]
+      [(equal? count start) (cons (car list) (sub-list start len (cdr list) count (+ 1 n_elem)))]
+      [else (sub-list start len (cdr list) (+ count 1) 0)]
+          )))
+
 ;apply-arguments:  
 (define apply-arguments
   (lambda (a-val args env)
@@ -444,7 +456,13 @@
           )
         )
       )
-      (arr-arguments (val vals) a-val)
+      (arr-arguments (val vals) (if (null? vals)
+                                    (list-ref a-val (eval-comp-value val env))
+                                    (if (null? (cdr vals))
+                                        (sub-list (eval-comp-value val env) (eval-comp-value (car vals) env) a-val 0 0)
+                                        (eopl:error 'Error "Expected 1 to 2 arguments, given ~s" (+(length vals)1)
+                                        )
+                                    )))
     )
   )
 )
