@@ -1,34 +1,25 @@
-declare a, b;
-b = "ne";
-a = [[-1,1],b,3,4,5,6];
 
-for x in ((-1..10) step 2) do
-	x;
-end
 
 def enIntervalo(min,max,value)
-	declare to_return;
-	to_return = false;
 	if (min < value) then
 		if (value < max) then
-			to_return = true;
+			return true;
 		end
+	else
+		return false;
 	end
-	return to_return;
 end
 
-declare min, max, value, w;
+declare w;
 
 w = enIntervalo(1, 10, 5);
 if w then
-	#puts "En el intervalo";
-	w;
+	puts "En el intervalo";
 end
 
 w = enIntervalo(1, 10, 11);
 unless w then
-	#puts "Fuera del intervalo";
-	w;
+	puts "Fuera del intervalo";
 end
 
 
@@ -41,6 +32,5 @@ def fact(n)
 	end     
 	return to_return; 
 end    
-puts "el factorial de 5 es",    (fact(5));
-
+puts "el factorial de 5 es", (fact(5));
   
