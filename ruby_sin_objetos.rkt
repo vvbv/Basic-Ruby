@@ -470,10 +470,8 @@
       (in-range () (if (and (number? arg1) (number? arg2)) (eval-range (inclusive arg1 arg2 1)) 'error))
       (ex-range () (if (and (number? arg1) (number? arg2)) (eval-range (exclusive arg1 arg2 1)) 'error))
       (st-range () 
-        (let ((list (eval-comp-value arg1 empty-env)))
-          (eval-range 
-            (inclusive (car list) (list-ref list (length list)) arg2)
-          )
+        (eval-range 
+          (inclusive (car arg1) (list-ref arg1 (- (length arg1) 1)) arg2)
         )
       )
     )
@@ -753,22 +751,31 @@
   (cases range a-range
     (inclusive (start end step) (iota-range start end step))
     (exclusive (start end step) (iota-range start (- end 1) step))
-    )
   )
+)
 
 ;;Función que retorna una lista dado un inicio, un final, y un incremento 
 (define iota-range
   (lambda (start end step)
-    (cond [(or
-            (and (< start end) (> 0 step))
-            (and (> start end) (< 0 step)))
-           (eopl:error 'Step "bad step")]
-          [else
-           (let loop ((next start))
-             (if (= 0 (abs (- next end)))
-                 (list next)
-                 (cons next (loop (+ next step)))))]
-          )))
+    (cond 
+      [
+        (or (and (< start end) (> 0 step)) (and (> start end) (< 0 step)))
+        (eopl:error 'Step "bad step")
+      ]
+      [else
+        (let loop ((next start))
+          (if (or (> next end ) (= 0 (abs (- next end))))
+            (if (> next end )
+              (list)
+              (list next)
+            )
+            (cons next (loop (+ next step)))
+          )
+        )
+      ]
+    )
+  )
+)
 
 ;build-a-list: Construye una lista de n elementos con valor = val
 (define build-a-list

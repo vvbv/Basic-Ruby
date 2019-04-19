@@ -1,10 +1,8 @@
-declare a;
-a = [1,2,3,4,5,6];
+declare a, b;
+b = "ne";
+a = [[-1,1],b,3,4,5,6];
 
-puts (a[1,3]);
-
-
-for x in (1..10) do
+for x in a do
 	puts x;
 end
 
@@ -30,3 +28,15 @@ w = enIntervalo(1, 10, 11);
 unless w then
 	puts "Fuera del intervalo";
 end
+
+
+def fact(n)        
+	declare to_return; 
+	if(n == 0 ) then             
+		to_return = 1;         
+	else                          
+		to_return = (n * (fact((n - 1))));
+	end     
+	return to_return; 
+end    
+puts "el factorial de 5 es",    (fact(5));
