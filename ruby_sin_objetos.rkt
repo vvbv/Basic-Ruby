@@ -195,16 +195,14 @@
       )
 
       (if-exp (test-exp true-exp test-exps2 true-exps2 false-exp)
-        (if (eval-comp-value test-exp env)
-          (begin 
-            (eval-exp-batch true-exp env)
-            (eval-next-exps exps env)
+          (if (eval-comp-value test-exp env)
+            (let ([last_value (eval-exp-batch true-exp env)])
+              (eval-next-if-exps exps env last_value)
+            )
+            (let ([last_value (eval-elif test-exps2 true-exps2 false-exp env)])
+              (eval-next-if-exps exps env last_value)
+            )
           )
-          (begin
-            (eval-elif test-exps2 true-exps2 false-exp env)
-            (eval-next-exps exps env)
-          )
-        )
       )
       
       (unless-exp (test-exp exp else-exp)
@@ -266,6 +264,18 @@
         (eval-comp-value val env)
       ) 
     )
+)
+
+(define eval-next-if-exps
+  (lambda (exps env last_value)
+    (cond 
+      [
+        (not (null? exps)) 
+        (eval-expressions (car exps) (cdr exps) env)
+      ]
+      [else last_value]
+    )
+  )
 )
 
 ;Evaluaciones Complementarias
@@ -619,10 +629,25 @@
 (define eval-elif
   (lambda (test-exps true-exps false-exp env)
     (cond
-      ((and (null? test-exps) (not (null? false-exp))) (eval-exp-batch (car false-exp) env))
-      ((and (null? test-exps) (null? false-exp)) #f)
-      ((eval-comp-value (car test-exps) env) (eval-exp-batch (car true-exps) env))
-      (else (eval-elif (cdr test-exps) (cdr true-exps) false-exp env)))))
+      (
+        (and (null? test-exps) (not (null? false-exp)))
+        (eval-exp-batch (car false-exp) env)
+      )
+      (
+        (and (null? test-exps) (null? false-exp))
+        #f
+      )
+      (
+        (eval-comp-value (car test-exps) env) 
+        (eval-exp-batch (car true-exps) env)
+      )
+      (
+        else 
+        (eval-elif (cdr test-exps) (cdr true-exps) false-exp env)
+      )
+    )
+  )
+)
 
 ;get-id: Retorna el id de un s-val
 (define get-id
