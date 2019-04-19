@@ -2,8 +2,8 @@ declare a, b;
 b = "ne";
 a = [[-1,1],b,3,4,5,6];
 
-for x in a do
-	puts x;
+for x in ((-1..10) step 2) do
+	x;
 end
 
 def enIntervalo(min,max,value)
@@ -21,12 +21,14 @@ declare min, max, value, w;
 
 w = enIntervalo(1, 10, 5);
 if w then
-	puts "En el intervalo";
+	#puts "En el intervalo";
+	w;
 end
 
 w = enIntervalo(1, 10, 11);
 unless w then
-	puts "Fuera del intervalo";
+	#puts "Fuera del intervalo";
+	w;
 end
 
 
@@ -40,3 +42,5 @@ def fact(n)
 	return to_return; 
 end    
 puts "el factorial de 5 es",    (fact(5));
+
+  

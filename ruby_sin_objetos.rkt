@@ -195,15 +195,12 @@
       )
 
       (if-exp (test-exp true-exp test-exps2 true-exps2 false-exp)
-        (if (eval-comp-value test-exp env)
-          (begin 
+        (let ([last_value (eval-exp-batch true-exp env)])
+          (if (eval-comp-value test-exp env)
             (eval-exp-batch true-exp env)
-            (eval-next-exps exps env)
-          )
-          (begin
             (eval-elif test-exps2 true-exps2 false-exp env)
-            (eval-next-exps exps env)
           )
+          (eval-next-if-exps exps env last_value)
         )
       )
       
@@ -266,6 +263,15 @@
         (eval-comp-value val env)
       ) 
     )
+)
+
+(define eval-next-if-exps
+  (lambda (exps env last_value)
+    (cond 
+      [(not (null? exps)) (eval-expressions (car exps) (cdr exps) env)]
+      [else last_value]
+    )
+  )
 )
 
 ;Evaluaciones Complementarias
