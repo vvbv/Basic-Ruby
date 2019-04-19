@@ -2,7 +2,7 @@ declare a, b;
 b = "ne";
 a = [[-1,1],b,3,4,5,6];
 
-for x in ((-1..10) step 2) do
+for x in a do
 	puts x;
 end
 
