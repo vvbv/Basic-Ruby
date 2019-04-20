@@ -24,8 +24,8 @@
     (number (digit (arbno digit)) number) 
     (number ("-" digit (arbno digit)) number) 
     (text ("\"" 
-           (or letter whitespace digit) 
-           (arbno (or letter digit whitespace ":" "?" "=" "'") ) "\"" ) 
+           (or letter whitespace digit ":" "?" "=" "'" "." "_" "-" ">" "<" "[" "]" "/" "*" "+" "[" "]" "{" "}" ";" "(" ")" ",") 
+           (arbno (or letter digit whitespace ":" "?" "=" "'" "." "_" "-" ">" "<" "[" "]" "/" "*" "+" "[" "]" "{" "}" ";" "(" ")" ",") ) "\"" ) 
           string) 
   )
 )
@@ -814,7 +814,4 @@
   (lambda (x)
     (not (zero? x))))
 
-(
-    (lambda (pgm) (eval-program  pgm)) 
-    (scan&parse  (string-append "ruby " (read-file "input.rb") " end"))
-)
+(interpretador)
