@@ -108,7 +108,7 @@ ruby
 	end
 
 	puts "--------------------------";
-	puts "> Pruebas while  + for exp:";
+	puts "> Pruebas while + until + for exp:";
 	puts "--------------------------";
 
 	puts ">>> while( x < 3 ) con x = 0";
