@@ -1,6 +1,5 @@
 #lang eopl
 (require racket/string)
-(require 2htdp/batch-io) ; Temporal 
 ;;-------------------------------------------------------------;;
 ;; Asignatura: Fundamentos de Lenguajes de Programación (FLP)  ;;
 ;; Proyecto: Implementando un Ruby básico usando SLLGEN        ;;
@@ -24,8 +23,8 @@
     (number (digit (arbno digit)) number) 
     (number ("-" digit (arbno digit)) number) 
     (text ("\"" 
-           (or letter whitespace digit) 
-           (arbno (or letter digit whitespace ":" "?" "=" "'") ) "\"" ) 
+           (or letter whitespace digit ":" "?" "=" "'" "." "_" "-" ">" "<" "[" "]" "/" "*" "+" "[" "]" "{" "}" ";" "(" ")" ",") 
+           (arbno (or letter digit whitespace ":" "?" "=" "'" "." "_" "-" ">" "<" "[" "]" "/" "*" "+" "[" "]" "{" "}" ";" "(" ")" ",") ) "\"" ) 
           string) 
   )
 )
@@ -814,7 +813,4 @@
   (lambda (x)
     (not (zero? x))))
 
-(
-    (lambda (pgm) (eval-program  pgm)) 
-    (scan&parse  (string-append "ruby " (read-file "input.rb") " end"))
-)
+(interpretador)
